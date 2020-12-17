@@ -5,6 +5,8 @@
  */
 package meta_pr03;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author spdlc
@@ -15,7 +17,15 @@ public class META_PR03 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+//        Configurador config = new Configurador(args[0]);
+//        System.out.println(config.getArchivos());
+//        ArrayList<ArchivoDatos> archivos = new ArrayList<>();
+//        for (int i = 0; i < config.getArchivos().size(); i++) {
+//            archivos.add(new ArchivoDatos(config.getArchivos().get(i)));
+//        }
+        
+        SCH colonia = new SCH(args,0,0);
+        colonia.AlgSCH();
     }
     
 }

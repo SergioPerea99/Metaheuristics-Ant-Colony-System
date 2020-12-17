@@ -1,0 +1,7 @@
+Archivos=GKD-c_1_n500_m50.txt GKD-c_2_n500_m50.txt GKD-c_3_n500_m50.txt SOM-b_11_n300_m90.txt SOM-b_12_n300_m120.txt SOM-b_13_n400_m40.txt MDG-a_21_n2000_m200.txt MDG-a_22_n2000_m200.txt MDG-a_23_n2000_m200.txt
+Semillas=77433569 74335697 43356977 33569774 35697743
+MaximoIteraciones=10000
+Num_Hormigas=10
+PROB_LRC=0.6
+Inicializacion_Feromona=19465.72 19586.06 19463.68 20358 35557 4532 111998 112197 112134
+
