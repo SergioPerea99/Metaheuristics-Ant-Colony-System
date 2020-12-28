@@ -110,10 +110,7 @@ public class SCH {
                     
                     //APARENTEMENTE FUNCIONA CORRECTAMENTE: AÑADE LOS ELEMENTOS A LA PAR Y PARECE QUE NO HA DADO NINGUNA CASUÍSTICA LA CUAL NO FUNCIONE
                 }
-//                for (Hormiga hormiga : poblacion.getV_poblacion()) {
-//                    System.out.print(hormiga.getSolucion().size()+" :: ");
-//                }
-//                System.out.println("");
+
                 /*ACTUALIZACIÓN LOCAL*/
                 actualizacionLocalFeromonas();
                 
@@ -178,23 +175,26 @@ public class SCH {
     
     
     private void reglaTransicionClasica(ArrayList<Pair<Integer,Double>> LRC, Hormiga hormiga, double sumatoriaAportes){
-        ArrayList<Float> porcentajesAportes = new ArrayList<>(LRC.size()); //Contenedor del aporte de cada elemento de la LRC PORCENTUALMENTE
-        float sumSeqPorcentual = 0;
+        ArrayList<Double> porcentajesAportes = new ArrayList<>(LRC.size()); //Contenedor del aporte de cada elemento de la LRC PORCENTUALMENTE
+        
+        
+        for(int i = 0; i < LRC.size(); i++)
+            porcentajesAportes.add((LRC.get(i).getValue() / sumatoriaAportes));
+        
+        
         float aleatorioElem = random.Randfloat(0,1);
-
+        float sumSeqPorcentual = 0;
+        
         boolean aniadido = false;
-        for (int posLRC = 0; posLRC < LRC.size() && !aniadido; posLRC++) {
-            if (aleatorioElem > sumSeqPorcentual) { //Mientras no se haya llegado al porcentaje aleatorio el cual nos indica que elemento es el nuevo de la hormiga...
-                porcentajesAportes.add((float) (LRC.get(posLRC).getValue() / sumatoriaAportes));
-                sumSeqPorcentual += porcentajesAportes.get(porcentajesAportes.size() - 1);
-            } else { //Ha llegado al elemento que debe ser elegido, por la regla de la transición, de forma porcentual...
-               
-                hormiga.getSolucion().add(LRC.get(posLRC).getKey());
-                hormiga.getN().remove(LRC.get(posLRC).getKey());
-
+        for (int i = 0; i < LRC.size() && !aniadido; i++) {
+            sumSeqPorcentual += porcentajesAportes.get(i);
+            if (aleatorioElem <= sumSeqPorcentual) { //Mientras no se haya llegado al porcentaje aleatorio el cual nos indica que elemento es el nuevo de la hormiga...
+                hormiga.getSolucion().add(LRC.get(i).getKey());
+                hormiga.getN().remove(LRC.get(i).getKey());
                 aniadido = true;
-            }
+            } 
         }
+        
         if (!aniadido) System.out.println(sumSeqPorcentual);
         
         if (!aniadido && aleatorioElem >= (sumSeqPorcentual - porcentajesAportes.get(porcentajesAportes.size() - 1)) && aleatorioElem < sumSeqPorcentual) {
