@@ -20,6 +20,12 @@ public class Configurador {
     private Integer NUM_HORMIGAS;
     private Float PROB_LRC;
     private ArrayList<Float> cGreedy;
+    private Integer alfa;
+    private Integer beta;
+    private float q0;
+    private float phi;
+    private float rho;
+    private long tiempo_max;
     
     public Configurador(String ruta){
         archivos = new ArrayList<>();
@@ -60,6 +66,24 @@ public class Configurador {
                         break;
                     case "PROB_LRC":
                         PROB_LRC = Float.parseFloat(split[1]);
+                        break;
+                    case "alfa":
+                        alfa = Integer.parseInt(split[1]);
+                        break;
+                    case "beta":
+                        beta = Integer.parseInt(split[1]);
+                        break;
+                    case "q0":
+                        q0 = Float.parseFloat(split[1]);
+                        break;
+                    case "actualizacion_local_feromona":
+                        phi = Float.parseFloat(split[1]);
+                        break;
+                    case "actualizacion_global_feromona":
+                        rho = Float.parseFloat(split[1]);
+                        break;
+                    case "tiempo_maximo":
+                        tiempo_max = Long.parseLong(split[1]);
                         break;
                     default:
                         break;
@@ -130,8 +154,49 @@ public class Configurador {
     public Float getPROB_LRC() {
         return PROB_LRC;
     }
+
+    /**
+     * @return the alfa
+     */
+    public Integer getAlfa() {
+        return alfa;
+    }
+
+    /**
+     * @return the beta
+     */
+    public Integer getBeta() {
+        return beta;
+    }
+
+    /**
+     * @return the q0
+     */
+    public float getQ0() {
+        return q0;
+    }
     
-    
+    /**
+     * 
+     * @return the phi
+     */
+    public float getPhi(){
+        return phi;
+    }
+
+    /**
+     * @return the rho
+     */
+    public float getRho() {
+        return rho;
+    }
+
+    /**
+     * @return the tiempo_max
+     */
+    public long getTiempo_max() {
+        return tiempo_max;
+    }
     
     
 }

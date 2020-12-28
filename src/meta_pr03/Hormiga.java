@@ -39,7 +39,7 @@ public class Hormiga {
      * @brief Sumatoria del coste final.
      * @post La suma de todas las distancias de cada uno de los puntos con respecto a los demás puntos.
      */
-    public void costeFitness(float[][] matrizDatos){
+    public double costeSolucion(float[][] matrizDatos){
         calidad = 0.0;
         ArrayList<Integer> v_M = new ArrayList<>(vSolucion);
         for(int i = 0; i < v_M.size()-1; i++)
@@ -49,6 +49,7 @@ public class Hormiga {
                 else
                     calidad += matrizDatos[v_M.get(j)][v_M.get(i)];
             }
+        return calidad;
     }
     
     
@@ -61,12 +62,17 @@ public class Hormiga {
      * @return Suma de las distancias del elemento del parámetro con todos los candidatos.
      */
     protected double distanciasElemento(Integer elem, float[][] matrizDatos){
+        
         double sumaDistancias = 0.0;
-        for(Integer i : vSolucion)
+        
+        //El error está dentro del vector Solucion que tiene un elemento = -1
+        
+        for(Integer i : vSolucion){
             if(matrizDatos[i][elem] != 0)
-                sumaDistancias += matrizDatos[i][elem];
+                    sumaDistancias += matrizDatos[i][elem];
             else
-                sumaDistancias += matrizDatos[elem][i];
+                    sumaDistancias += matrizDatos[elem][i];
+        }
         return sumaDistancias;
     }
     

@@ -60,7 +60,7 @@ public class Poblacion {
             punto = _random.Randint(0, num_elementos-1);
             hormiga.getSolucion().add(punto);
             hormiga.getN().remove(punto);
-            System.out.println(hormiga.getN().size());
+            //System.out.println(hormiga.getN().size());
         }
     }
     

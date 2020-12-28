@@ -44,7 +44,6 @@ public class ArchivoDatos {
                int columna = Integer.parseInt(rellenoMatriz[1]);
                //Por si acaso hay varios espacios vacios entre los datos.
                try{
-                    //Prefiero NO rellenar la matriz de forma simétrica, para evitar futuras complicaciones.
                     matrizDatos[fila][columna] =  Float.parseFloat(rellenoMatriz[2]);
                     //matrizDatos[columna][fila] =  Float.parseFloat(rellenoMatriz[2]);
                }catch(NumberFormatException ex){
