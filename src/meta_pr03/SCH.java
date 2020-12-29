@@ -28,13 +28,15 @@ public class SCH {
     private double costeElite;
     
     /*ATRIBUTOS EXTRA*/
+    private ArrayList<Pair<Hormiga,Integer>> procesoMejora;
+    private Integer it;
     private final int num_archivo;
     
     public SCH(String[] _args,Integer _num_archivo, Integer sem){
         config = new Configurador(_args[0]);
         archivo = new ArchivoDatos(config.getArchivos().get(_num_archivo));
         random = new Random(config.getSemillas().get(sem));
-        num_archivo = _num_archivo;
+        
         
         /*INICIALIZACIÓN DE MATRIZ DE FEROMONAS (LA MATRIZ HEURÍSTICA ES LA MATRIZ DE DISTANCIAS CONTENIDA EN EL ARCHIVO)*/
         feromonas = new float[archivo.getTamMatriz()][archivo.getTamMatriz()];
@@ -44,14 +46,18 @@ public class SCH {
         
         /*INICIALIZACIÓN DE LA POBLACIÓN DE HORMIGAS*/
         poblacion = new Poblacion(random,config.getNUM_HORMIGAS(), archivo);
-        hormigaElite = null;
+        hormigaElite = poblacion.getV_poblacion().get(0);
         costeElite = 0.0;
+        
+        /*EXTRA*/
+        procesoMejora = new ArrayList<>();
+        it = 0;
+        num_archivo = _num_archivo;
     }
     
     public void AlgSCH(){
-        int it = 0;
         double tiempo = 0.0;
-        while(it < config.getMAX_ITERACIONES() && tiempo < config.getTiempo_max()){
+        while(getIt() < config.getMAX_ITERACIONES() && tiempo < config.getTiempo_max()){
             long inicio = System.currentTimeMillis();
             while(!poblacion.poblacionCompleta(archivo.getTamSolucion())){
                /*MIENTRA NO ESTÁN LAS HORMIGAS COMPLETAS => AÑADIR A TODAS UN ELEMENTO Y DESPUÉS ACTUALIZACIÓN LOCAL*/
@@ -128,11 +134,12 @@ public class SCH {
             
             /*ACTUALIZACIÓN (O NO) DE LA HORMIGA ÉLITE*/
             if (mejorCoste_hormiga > costeElite){
-                System.out.print(costeElite+" --> ");
+                //System.out.print(costeElite+" --> ");
                 costeElite = mejorCoste_hormiga;
-                hormigaElite = poblacion.getV_poblacion().get(indexMejorHormiga);
-                System.out.print(costeElite);
-                System.out.println(" :: "+it+" :: "+costeElite+" ( actual = "+hormigaElite.getCalidad()+" ) :: "+tiempo+" segundos");
+                hormigaElite = new Hormiga(poblacion.getV_poblacion().get(indexMejorHormiga));
+                getProcesoMejora().add(new Pair<>(hormigaElite, getIt())); //Almacena en que iteracion y que hormiga ha sido cambiada -> logs
+                //System.out.print(costeElite);
+                //System.out.println(" :: "+getIt()+" :: "+costeElite+" ( actual = "+hormigaElite.getCalidad()+" ) :: "+tiempo+" segundos");
             }
             
             /*ACTUALIZACION GLOBAL*/
@@ -223,9 +230,25 @@ public class SCH {
         
     }
     
-    
+    /**
+     * @return the hormigaElite
+     */
     public Hormiga getHormigaElite(){
         return hormigaElite;
+    }
+
+    /**
+     * @return the procesoMejora
+     */
+    public ArrayList<Pair<Hormiga,Integer>> getProcesoMejora() {
+        return procesoMejora;
+    }
+
+    /**
+     * @return the it
+     */
+    public Integer getIt() {
+        return it;
     }
     
 }

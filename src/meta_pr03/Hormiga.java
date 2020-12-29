@@ -34,6 +34,13 @@ public class Hormiga {
         calidad = 0.0;
     }
     
+    public Hormiga(Hormiga orig){
+        /*INICIALIZACION DE TODOS LOS ELEMENTOS*/
+        N = new HashSet<>(orig.N);
+        vSolucion = new HashSet<>(orig.vSolucion);
+        calidad = orig.calidad;
+    }
+    
     /**
      * 
      * @brief Sumatoria del coste final.
