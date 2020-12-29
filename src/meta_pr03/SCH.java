@@ -8,6 +8,7 @@ package meta_pr03;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Vector;
 import javafx.util.Pair;
 
 /**
@@ -57,7 +58,7 @@ public class SCH {
                 for (Hormiga hormiga : poblacion.getV_poblacion()) {
                     
                     /*POR CADA HORMIGA SACAMOS LAS DISTANCIAS DE TODOS LOS ELEMENTOS RESPECTO A LOS YA METIDOS EN EL VECTOR DE LA HORMIGA*/
-                    ArrayList<Pair<Integer,Double>> LRC = dist_hormiga(hormiga);
+                    ArrayList<Integer> LRC = dist_hormiga(hormiga);
                     
                     
                     /*Elección del elemento (de la LRC) a añadir en la hormiga:
@@ -68,26 +69,20 @@ public class SCH {
                     int elemMaxAporte = -1;
                     double maxAporte = 0.0; 
                     double sumatoriaAportes = 0.0;
-//                    ArrayList<Double> heurYferom = new ArrayList<>();
-//                    for(int i  = 0; i < LRC.size(); i++)
-//                        heurYferom.add(0.0);
+                    double heurYferom[] = new double[LRC.size()];
+                    for(int i  = 0; i < LRC.size(); i++)
+                        heurYferom[i] = 0.0;
                     
                     for (int i = 0; i < LRC.size(); i++){ //Para cada posición de par<elemento,valor> de la LRC...
+                        for (int j = 0; j < hormiga.getSolucion().size(); j++) //Para cada elemento de la solución...
+                            heurYferom[i] += Math.pow(feromonas[j][LRC.get(i)], config.getAlfa()) * Math.pow(archivo.getMatrizDatos()[j][LRC.get(i)], config.getBeta());
                         
-                        for (Integer elemSolucion : hormiga.getSolucion()){ //Para cada elemento de la solución...
-                            
-                            if (archivo.getMatrizDatos()[elemSolucion][LRC.get(i).getKey()] > 0)
-                                LRC.set(i, new Pair<>(LRC.get(i).getKey(),LRC.get(i).getValue() + (Math.pow(feromonas[elemSolucion][LRC.get(i).getKey()], config.getAlfa()) * Math.pow(archivo.getMatrizDatos()[elemSolucion][LRC.get(i).getKey()], config.getBeta())) ));
-                            else
-                                LRC.set(i, new Pair<>(LRC.get(i).getKey(),LRC.get(i).getValue() + (Math.pow(feromonas[LRC.get(i).getKey()][elemSolucion], config.getAlfa()) * Math.pow(archivo.getMatrizDatos()[LRC.get(i).getKey()][elemSolucion], config.getBeta())) ));
+                        if (maxAporte < heurYferom[i]){
+                            maxAporte = heurYferom[i]; //Mejor valor aportado
+                            elemMaxAporte = LRC.get(i); //Mejor elemento de la LRC
                         }
                         
-                        if (maxAporte < LRC.get(i).getValue()){
-                            maxAporte = LRC.get(i).getValue(); //Mejor valor aportado
-                            elemMaxAporte = LRC.get(i).getKey(); //Mejor elemento de la LRC
-                        }
-                        
-                        sumatoriaAportes += LRC.get(i).getValue();
+                        sumatoriaAportes += heurYferom[i];
                     }
                     
                     /* ---- APARENTEMENTE FUNCIONANDO ----*/
@@ -102,7 +97,7 @@ public class SCH {
                     */
                     float q = random.Randfloat(0,1);
                     if (q <= config.getQ0()){
-                        reglaTransicionClasica(LRC, hormiga, sumatoriaAportes);
+                        reglaTransicionClasica(LRC,heurYferom, hormiga, sumatoriaAportes);
                     }else{
                         hormiga.getSolucion().add(elemMaxAporte);
                         hormiga.getN().remove(elemMaxAporte);
@@ -141,7 +136,7 @@ public class SCH {
             }
             
             /*ACTUALIZACION GLOBAL*/
-            actualizacionGlobalFeromonas(poblacion.getV_poblacion().get(indexMejorHormiga));
+            actualizacionGlobalFeromonas(poblacion.getV_poblacion().get(indexMejorHormiga), mejorCoste_hormiga);
             
             
             long fin = System.currentTimeMillis();
@@ -156,8 +151,8 @@ public class SCH {
     }
     
     
-    private ArrayList<Pair<Integer,Double>> dist_hormiga(Hormiga hormiga){
-        ArrayList<Pair<Integer,Double>> LRC = new ArrayList<>();
+    private ArrayList<Integer> dist_hormiga(Hormiga hormiga){
+        ArrayList<Integer> LRC = new ArrayList<>();
         ArrayList<Pair<Integer,Double>> aportes = new ArrayList<>();
         
         /*CALCULAMOS TODOS LOS APORTES DE LOS ELEMENTOS EN N POSIBLES A SER PARTE DE LA SOLUCIÓN*/
@@ -168,18 +163,18 @@ public class SCH {
         
         /*AÑADIMOS AL CONTENEDOR LRC TODOS LOS ELEMENTOS QUE SUPERAN PORCENTUALMENTE EL COSTE DE APORTE RESPECTO A LOS ELEMENTOS DE LA SOLUCIÓN*/
         for(int i = (int)(config.getPROB_LRC()*aportes.size()); i < aportes.size(); i++)
-            LRC.add(new Pair<>(aportes.get(i).getKey(),0.0));
+            LRC.add(aportes.get(i).getKey());
         
         return LRC; //Devuelvo Pair para poder luego calcular a ese elemento de la LRC su calidad respecto a la fermonoma^alfa * heuristica*beta
     }
     
     
-    private void reglaTransicionClasica(ArrayList<Pair<Integer,Double>> LRC, Hormiga hormiga, double sumatoriaAportes){
+    private void reglaTransicionClasica(ArrayList<Integer> LRC,double heurYferom[], Hormiga hormiga, double sumatoriaAportes){
         ArrayList<Double> porcentajesAportes = new ArrayList<>(LRC.size()); //Contenedor del aporte de cada elemento de la LRC PORCENTUALMENTE
         
         
         for(int i = 0; i < LRC.size(); i++)
-            porcentajesAportes.add((LRC.get(i).getValue() / sumatoriaAportes));
+            porcentajesAportes.add((heurYferom[i] / sumatoriaAportes));
         
         
         float aleatorioElem = random.Randfloat(0,1);
@@ -188,19 +183,13 @@ public class SCH {
         boolean aniadido = false;
         for (int i = 0; i < LRC.size() && !aniadido; i++) {
             sumSeqPorcentual += porcentajesAportes.get(i);
-            if (aleatorioElem <= sumSeqPorcentual) { //Mientras no se haya llegado al porcentaje aleatorio el cual nos indica que elemento es el nuevo de la hormiga...
-                hormiga.getSolucion().add(LRC.get(i).getKey());
-                hormiga.getN().remove(LRC.get(i).getKey());
+            if (aleatorioElem <= sumSeqPorcentual) { 
+                hormiga.getSolucion().add(LRC.get(i));
+                hormiga.getN().remove(LRC.get(i));
                 aniadido = true;
             } 
         }
-        
-        if (!aniadido) System.out.println(sumSeqPorcentual);
-        
-        if (!aniadido && aleatorioElem >= (sumSeqPorcentual - porcentajesAportes.get(porcentajesAportes.size() - 1)) && aleatorioElem < sumSeqPorcentual) {
-            hormiga.getSolucion().add(LRC.get(LRC.size() - 1).getKey());
-            hormiga.getN().remove(LRC.get(LRC.size() - 1).getKey());
-        }        
+          
     }
     
     
@@ -210,17 +199,16 @@ public class SCH {
             ArrayList<Integer> v_h = new ArrayList<>(poblacion.getV_poblacion().get(i).getSolucion());
             for (int pos_elem = 0; pos_elem < v_h.size(); pos_elem++) { //Por cada elemento de la solución (no el)de la hormiga...
                 feromonas[v_h.get(pos_elem)][v_h.get(v_h.size()-1)] = (1-config.getPhi())*feromonas[v_h.get(pos_elem)][v_h.get(v_h.size()-1)] + (config.getPhi()*config.getcGreedy().get(num_archivo));
-                //DUDA: Porque aquí solo se actualiza lo de arriba y no para ambas partes de la matriz de la feromona
                 feromonas[v_h.get(v_h.size()-1)][v_h.get(pos_elem)] = feromonas[v_h.get(pos_elem)][v_h.get(v_h.size()-1)];
             }
         }
     }
     
-    private void actualizacionGlobalFeromonas(Hormiga mejorHormigaActual){
+    private void actualizacionGlobalFeromonas(Hormiga mejorHormigaActual, double costeActual){
         /*Actualización de feromona de los elementos que la hormiga trae en su solución*/
         for (Integer i : mejorHormigaActual.getSolucion()) { //Por cada elemento de la hormiga...
             for (Integer j : mejorHormigaActual.getN()) { //Para cada elemento (no partícipe de la solución de la hormiga)...
-                feromonas[i][j] += config.getRho() * mejorHormigaActual.getCalidad();
+                feromonas[i][j] += config.getRho() * costeActual;
                 feromonas[j][i] = feromonas [i][j];
             }
         }
