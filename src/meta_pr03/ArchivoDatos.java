@@ -45,7 +45,7 @@ public class ArchivoDatos {
                //Por si acaso hay varios espacios vacios entre los datos.
                try{
                     matrizDatos[fila][columna] =  Float.parseFloat(rellenoMatriz[2]);
-                    //matrizDatos[columna][fila] =  Float.parseFloat(rellenoMatriz[2]);
+                    matrizDatos[columna][fila] =  Float.parseFloat(rellenoMatriz[2]);
                }catch(NumberFormatException ex){
                    ++errores;
                }
