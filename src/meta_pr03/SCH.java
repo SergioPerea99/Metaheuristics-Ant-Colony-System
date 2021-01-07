@@ -59,19 +59,14 @@ public class SCH {
         double tiempo = 0.0;
         while(getIt() < config.getMAX_ITERACIONES() && tiempo < config.getTiempo_max()){
             long inicio = System.currentTimeMillis();
-            while(!poblacion.poblacionCompleta(archivo.getTamSolucion())){
-               /*MIENTRA NO ESTÁN LAS HORMIGAS COMPLETAS => AÑADIR A TODAS UN ELEMENTO Y DESPUÉS ACTUALIZACIÓN LOCAL*/
+            while(!poblacion.poblacionCompleta(archivo.getTamSolucion())){ /*MIENTRA NO ESTÁN LAS HORMIGAS COMPLETAS...*/
+                
                 for (Hormiga hormiga : poblacion.getV_poblacion()) {
                     
                     /*POR CADA HORMIGA SACAMOS LAS DISTANCIAS DE TODOS LOS ELEMENTOS RESPECTO A LOS YA METIDOS EN EL VECTOR DE LA HORMIGA*/
                     ArrayList<Integer> LRC = dist_hormiga(hormiga);
-                    
-                    
-                    /*Elección del elemento (de la LRC) a añadir en la hormiga:
-                    * - Para cada elemento -> calculo feromona^alfa * heuristica^beta
-                    * - La sumatoria de cada elemento de la LRC
-                    * - Cual es el de mayor aporte entre los que se van calculando
-                    */
+
+                    /*ELECCIÓN DE ELEMENTO DE LA LRC*/
                     int elemMaxAporte = -1;
                     double maxAporte = 0.0; 
                     double sumatoriaAportes = 0.0;
@@ -91,25 +86,15 @@ public class SCH {
                         sumatoriaAportes += heurYferom[i];
                     }
                     
-                    /* ---- APARENTEMENTE FUNCIONANDO ----*/
                     
-                    /*FUNCION DE TRANSICION
-                    * q = Aleatorio [0,1]...
-                    * IF q <= q0 entonces
-                    *   - Cáculo del peso porcentual de cada aporte respecto a los que ya están en la hormiga
-                    *   - Aleatorio que elige el nuevo elemento en la hormiga 
-                    * ELSE
-                    * nuevo elemento a la hormiga = elemMaxAPorte
-                    */
+                    /*FUNCION DE TRANSICION*/
                     float q = random.Randfloat(0,1);
                     if (q <= config.getQ0()){
                         reglaTransicionClasica(LRC,heurYferom, hormiga, sumatoriaAportes);
                     }else{
                         hormiga.getSolucion().add(elemMaxAporte);
                         hormiga.getN().remove(elemMaxAporte);
-                    }
-                    
-                    //APARENTEMENTE FUNCIONA CORRECTAMENTE: AÑADE LOS ELEMENTOS A LA PAR Y PARECE QUE NO HA DADO NINGUNA CASUÍSTICA LA CUAL NO FUNCIONE
+                    } 
                 }
 
                 /*ACTUALIZACIÓN LOCAL*/
@@ -117,11 +102,7 @@ public class SCH {
                 
             }
             
-            /*YA SE HA COMPLETADO LA POBLACION DE HORMIGAS:
-            * - Encontrar la mejor hormiga.
-            * - Actualización global respecto a la mejor hormiga encontrada en el proceso anterior.
-            * - Actualizar (si así es) la mejor hormiga encontrada en el proceso anterior por la hormiga élite del algoritmo.
-            */
+            /*ENCONTRAR LA MEJOR HORMIGA*/
             double mejorCoste_hormiga = Double.MIN_VALUE;
             int indexMejorHormiga = -1;
             for (int h = 0; h < poblacion.getV_poblacion().size(); h++) {
@@ -134,12 +115,9 @@ public class SCH {
             
             /*ACTUALIZACIÓN (O NO) DE LA HORMIGA ÉLITE*/
             if (mejorCoste_hormiga > costeElite){
-                //System.out.print(costeElite+" --> ");
                 costeElite = mejorCoste_hormiga;
                 hormigaElite = new Hormiga(poblacion.getV_poblacion().get(indexMejorHormiga));
                 getProcesoMejora().add(new Pair<>(hormigaElite, getIt())); //Almacena en que iteracion y que hormiga ha sido cambiada -> logs
-                //System.out.print(costeElite);
-                //System.out.println(" :: "+getIt()+" :: "+costeElite+" ( actual = "+hormigaElite.getCalidad()+" ) :: "+tiempo+" segundos");
             }
             
             /*ACTUALIZACION GLOBAL*/
@@ -172,7 +150,7 @@ public class SCH {
         for(int i = (int)(config.getPROB_LRC()*aportes.size()); i < aportes.size(); i++)
             LRC.add(aportes.get(i).getKey());
         
-        return LRC; //Devuelvo Pair para poder luego calcular a ese elemento de la LRC su calidad respecto a la fermonoma^alfa * heuristica*beta
+        return LRC; 
     }
     
     
@@ -204,7 +182,7 @@ public class SCH {
         
         for (int i = 0; i < poblacion.getV_poblacion().size(); i++) { //Por cada hormiga...
             ArrayList<Integer> v_h = new ArrayList<>(poblacion.getV_poblacion().get(i).getSolucion());
-            for (int pos_elem = 0; pos_elem < v_h.size(); pos_elem++) { //Por cada elemento de la solución (no el)de la hormiga...
+            for (int pos_elem = 0; pos_elem < v_h.size(); pos_elem++) { //Por cada elemento de la solución de la hormiga...
                 feromonas[v_h.get(pos_elem)][v_h.get(v_h.size()-1)] = (1-config.getPhi())*feromonas[v_h.get(pos_elem)][v_h.get(v_h.size()-1)] + (config.getPhi()*config.getcGreedy().get(num_archivo));
                 feromonas[v_h.get(v_h.size()-1)][v_h.get(pos_elem)] = feromonas[v_h.get(pos_elem)][v_h.get(v_h.size()-1)];
             }
