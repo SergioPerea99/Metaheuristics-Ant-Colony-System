@@ -85,23 +85,6 @@ public class Hormiga {
     
     
     /**
-     * @brief Ordenación respecto Aporte/Elemento.
-     * @post Ordena el vector de aportes que representa cada elemento de la solución con respecto a los demás.
-     * @param v_distancias Contenedor Pair que indica el elemento y su aporte correspondiente.
-     */
-    public void ordenacionMenorAporte(ArrayList<Pair<Integer,Double>> v_distancias, float[][] matrizDatos){
-        v_distancias.clear();
-        ArrayList<Integer> v_solucion = new ArrayList<>(vSolucion);
-        Pair<Integer,Double> añadir;
-        for (int i = 0; i < v_solucion.size(); i++){
-            añadir = new Pair<>(v_solucion.get(i),distanciasElemento(v_solucion.get(i), matrizDatos));
-            v_distancias.add(añadir);
-        }
-       v_distancias.sort((o1,o2) -> o1.getValue().compareTo(o2.getValue()));
-    } //TODO: ELIMINAR MÉTODO YA QUE ES INNECESARIO EN ESTA PRACTICA
-    
-    
-    /**
      * @return the cromosoma
      */
     public HashSet<Integer> getSolucion() {
